@@ -5,12 +5,11 @@ File  : gmail_lag_alert_notification.py
 Purpose:
 --------
 This script demonstrates a simple Python program that performs basic operation to
-notify about gmail lag monitoring.
+notify about Gmail lag monitoring.
 
 Usage Documentation:
 ------
 https://api-docs.hevodata.com/reference/introduction
-
 
 License:
 --------
@@ -57,6 +56,18 @@ tzinfos = {
 }
 
 def get_pipeline_position(pipeline_id):
+    """
+    Fetches the display position of a given pipeline ID from the Hevo API.
+
+    Parameters:
+    pipeline_id (int): The ID of the pipeline.
+
+    Returns:
+    str: The display position of the pipeline.
+
+    Raises:
+    ValueError: If the API response does not contain the 'data' key.
+    """
     url = f'{base_url}/{pipeline_id}/position'
     response = requests.get(url, headers=headers)
 
@@ -72,14 +83,39 @@ def get_pipeline_position(pipeline_id):
     return response_data['data']['display_position']
 
 def clean_timestamp(timestamp_str):
-    # Extract only the date and time part before the comma
-    return timestamp_str.split("IST,")[0].strip()
+    """
+    Cleans the timestamp string by extracting the date and time part before the comma.
+
+    Parameters:
+    timestamp_str (str): The timestamp string to be cleaned.
+
+    Returns:
+    str: The cleaned timestamp string.
+    """
+    return timestamp_str.split("IST,")[0].strip()//User can change the timestamp here
 
 def parse_timestamp(timestamp_str):
-    # Parse datetime with timezone abbreviation using dateutil.parser and tzinfos
+    """
+    Parses a timestamp string with timezone abbreviations using dateutil.parser.
+
+    Parameters:
+    timestamp_str (str): The timestamp string to be parsed.
+
+    Returns:
+    datetime: The parsed datetime object with timezone info.
+    """
     return parser.parse(timestamp_str, tzinfos=tzinfos)
 
 def check_lag(pipeline_id):
+    """
+    Checks the lag of a given pipeline by comparing the current time with the pipeline's display position timestamp.
+
+    Parameters:
+    pipeline_id (int): The ID of the pipeline.
+
+    Returns:
+    str: The result string containing the lag information of the pipeline.
+    """
     try:
         display_position = get_pipeline_position(pipeline_id)
         print(f"Display Position: {display_position}")  # Debugging line
@@ -93,7 +129,7 @@ def check_lag(pipeline_id):
         if timestamp.tzinfo is None:
             timestamp = pytz.timezone('Asia/Kolkata').localize(timestamp)
         else:
-            timestamp = timestamp.astimezone(pytz.timezone('Asia/Kolkata'))
+            timestamp = timestamp.astimezone(pytz.timezone('Asia/Kolkata')) //User need to change timezone here
 
         current_time = datetime.now(pytz.timezone('Asia/Kolkata'))
 
@@ -112,6 +148,15 @@ def check_lag(pipeline_id):
         return f"Error processing pipeline {pipeline_id}: {e}\n"
 
 def main(pipeline_ids):
+    """
+    Main function to check the lag for a list of pipeline IDs.
+
+    Parameters:
+    pipeline_ids (list): The list of pipeline IDs to check.
+
+    Returns:
+    str: The result string containing the lag information for all pipelines.
+    """
     results = []
     for pipeline_id in pipeline_ids:
         result = check_lag(pipeline_id)
@@ -119,6 +164,18 @@ def main(pipeline_ids):
     return "\n".join(results)
 
 def send_email(to_email, cc_list, subject, body):
+    """
+    Sends an email notification with the provided subject and body to the specified recipients.
+
+    Parameters:
+    to_email (str): The primary recipient email address.
+    cc_list (list): The list of CC recipient email addresses.
+    subject (str): The subject of the email.
+    body (str): The body content of the email.
+
+    Returns:
+    None
+    """
     try:
         msg = MIMEMultipart()
         msg['From'] = SMTP_USER
@@ -140,6 +197,9 @@ def send_email(to_email, cc_list, subject, body):
         print(f"Failed to send email to {to_email}: {e}")
 
 if __name__ == "__main__":
+    """
+    Main execution block to run the lag check and send email notifications.
+    """
     subject = "Hevo Lag-Alert Notification System Results"
     pipeline_ids = [683]  # Example pipeline IDs
     results = main(pipeline_ids)
