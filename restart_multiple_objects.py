@@ -4,13 +4,12 @@ File  : restart_multiple_objects.py
 
 Purpose:
 --------
-This script demonstrates a simple Python program that performs basic operation of restarting
+This script demonstrates a simple Python program that performs the basic operation of restarting
 multiple objects.
 
 Usage Documentation:
 ------
 https://api-docs.hevodata.com/reference/introduction
-
 
 License:
 --------
@@ -21,6 +20,15 @@ and modify it for any purpose.
 import requests
 
 def restart_object(object_name):
+    """
+    Restarts a given object by making a POST request to the Hevo API.
+
+    Parameters:
+    object_name (str): The name of the object to restart.
+
+    Returns:
+    None
+    """
     # Define the API endpoint URL for the given object
     url = f"https://<region>.hevodata.com/api/public/v2.0/pipelines/<id>/objects/{object_name}/restart"
 
@@ -38,9 +46,13 @@ def restart_object(object_name):
     print("Response Text:", response.text)
     print("-" * 40)
 
-# List of objects to restart
-objects = ["employees.harman_students", "employees.Harman_Fruit"]  # Add your object names here
+if __name__ == "__main__":
+    """
+    Main execution block to restart a list of objects.
+    """
+    # List of objects to restart
+    objects = ["employees.harman_students", "employees.Harman_Fruit"]  # Add your object names here 
 
-# Restart each object in a loop
-for obj in objects:
-    restart_object(obj)
+    # Restart each object in a loop
+    for obj in objects:
+        restart_object(obj)
